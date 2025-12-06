@@ -46,12 +46,14 @@ erDiagram
     int    targetMinutes      "storage_scope: UserPersistent / >= 0"
   }
 
+  USER ||--o{ VOCABULARY_BOOK : "User can own multiple custom vocab books (1:N, built-in books have no owner)"
   VOCABULARY_BOOK ||--o{ VOCABULARY_WORD : "A book contains many words (1:N)"
   VOCABULARY_BOOK {
-    string id            PK   "storage_scope: GlobalPersistent / UUID"
-    string title              "storage_scope: GlobalPersistent"
-    string examLevel          "storage_scope: GlobalPersistent / linked to exam levels"
-    boolean isBuiltIn         "storage_scope: GlobalPersistent / true for provided books"
+    string id            PK   "storage_scope: GlobalPersistent or UserPersistent / UUID"
+    string title              "storage_scope: GlobalPersistent or UserPersistent"
+    string examLevel          "storage_scope: GlobalPersistent / linked to exam levels; optional for custom books"
+    boolean isBuiltIn         "storage_scope: GlobalPersistent / true for built-in books; false for custom books"
+    string ownerUserId   FK   "storage_scope: UserPersistent / nullable / owner for custom books"
   }
 
   VOCABULARY_WORD ||--o{ WORD_SENSE : "A word can have multiple senses (1:N)"
@@ -109,4 +111,14 @@ erDiagram
     datetime startedAt          "storage_scope: UserPersistent"
     int      allowedSeconds     "storage_scope: UserPersistent / e.g. 120"
     boolean  forceFinished      "storage_scope: UserPersistent / true if finished by countdown"
+  }
+
+  USER ||--|| USER_SETTING : "User has at most one settings record (1:1)"
+  USER_SETTING {
+    string id                          PK   "storage_scope: UserPersistent / UUID"
+    string userId                      FK   "storage_scope: UserPersistent"
+    string reviewStrictness                 "storage_scope: UserPersistent / strict, standard, relaxed"
+    string defaultQuestionDirection         "storage_scope: UserPersistent / EN_TO_JA, JA_TO_EN, MIXED"
+    int    mistakenFocusReviewIntervalDays  "storage_scope: UserPersistent / > 0 / min days between mistaken-only review sessions"
+    datetime lastMistakenFocusReviewAt      "storage_scope: UserPersistent / optional"
   }

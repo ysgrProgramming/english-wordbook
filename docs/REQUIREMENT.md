@@ -97,6 +97,7 @@ ER 図だけでは表現しづらいルールや補足がある場合に記述�
   - The application manages multi-stage mastery states for each target word (or word sense), such as: candidate (seen only in card study), short-context-checked (passed short sentence tests), and context-confirmed (passed reading comprehension or equivalent high-context tests).  
   - A word is counted as "cleared" in progress metrics only when all required senses reach the context-confirmed state; simpler words (for example, many nouns with a single main sense) may reach this state via short-context tests, while polysemous words require reading comprehension checks.  
   - The forgetting-curve-based review scheduler uses a strict default profile (shorter review intervals and fewer allowed lapses), but learners can adjust the strictness level (for example, strict / standard / relaxed) via application settings; the scheduling logic must remain stable and consistent across profiles.  
+  - Daily vocabulary sessions and mistaken-only review sessions use sessionId values that are ephemeral identifiers for the interaction; no dedicated persistent session entities are used, and durable data is stored in word sense mastery records and user settings (for example, last executed mistaken-only review timestamp).  
 
 ---
 
@@ -151,6 +152,11 @@ Web の場合は HTTP パス、CLI の場合はコマンド、ゲーム/組み�
 
 - Key Use Case IDs:  
   - UC_PLAN_AND_STUDY_VOCAB_BY_EXAM_GOAL  
+  - UC_MONTHLY_FOCUS_REVIEW_MISTAKEN_WORDS  
+  - UC_MANAGE_EXAM_GOALS  
+  - UC_MANAGE_CUSTOM_VOCAB_BOOKS  
+  - UC_VIEW_STUDY_HISTORY  
+  - UC_CONFIGURE_APP_SETTINGS  
 
 ---
 
@@ -184,7 +190,7 @@ DOMAIN_ER.md で付与した storage_scope を、具体的なストレージ/媒
 - DeviceLocal:  
   - Stored on the learner's device (for example local storage or on-device database) for offline-friendly features such as cached vocabulary content or last viewed progress; synchronized with UserPersistent data when online.  
 - UserPersistent:  
-  - Stored in a cloud database per user account and shared across devices, including exam goals, study targets, word sense mastery records, reading sessions, and custom vocabulary books.  
+  - Stored in a cloud database per user account and shared across devices, including exam goals, study targets, word sense mastery records, reading sessions, custom vocabulary books, and user settings (for example review strictness and default question direction).  
 - GlobalPersistent:  
   - Stored in shared system-wide databases, including built-in vocabulary books, word senses, and reading passages / questions that are common to all learners.  
 
