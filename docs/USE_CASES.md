@@ -67,7 +67,7 @@ UMLの Fully Dressed Use Case を簡略化し、Domain / State / Operations と
 
 - Postcondition:  
   - Mistaken or difficult words targeted in the session have updated mastery records (for example, updated mastery stage, lastTestedAt, and nextReviewAt).  
-  - The system records the execution time of the focus review session and enforces the interval until the next allowed focus review.  
+  - The system records the execution time of the focus review session and enforces the interval until the next allowed focus review (for example, by updating user settings such as lastMistakenFocusReviewAt).  
 
 - States: [ STATE_GOAL_DASHBOARD -> STATE_REVIEW_MISTAKEN_ONLY_SESSION -> STATE_GOAL_DASHBOARD ]  
 
@@ -78,8 +78,103 @@ UMLの Fully Dressed Use Case を簡略化し、Domain / State / Operations と
   - The learner tries to start the focus review mode again before the allowed interval has passed.  
   - Network or storage error prevents loading or saving review results.  
 
-<!--
-UC-3 以降も同じテンプレートをコピーして必要なだけ追加する。
--->
+---
 
+### UC-3
 
+- UC_ID: UC_MANAGE_EXAM_GOALS  
+- Title: Manage exam goals for vocabulary study  
+- Actor: ExamLearner  
+
+- Goal:  
+  - The learner creates, updates, or archives exam goals (exam type, level, target date) so that daily / weekly / monthly study targets can be derived and kept up to date.  
+
+- Precondition:  
+  - The learner can access the exam goal management screen from the goal dashboard.  
+
+- Postcondition:  
+  - Exam goal records are created or updated in a consistent state, and obsolete goals can be archived instead of deleted to preserve history.  
+  - The goal dashboard reflects the currently active exam goal and its derived study targets.  
+
+- States: [ STATE_GOAL_DASHBOARD -> STATE_EXAM_GOAL_MANAGEMENT -> STATE_GOAL_DASHBOARD ]  
+
+- Operations: [ OP_MANAGE_EXAM_GOALS, OP_VIEW_GOAL_DASHBOARD ]  
+
+- ErrorCases:
+  - The learner sets an exam date in the past or an invalid combination of exam type and level.  
+  - Network or storage error prevents saving changes to exam goals.  
+
+---
+
+### UC-4
+
+- UC_ID: UC_MANAGE_CUSTOM_VOCAB_BOOKS  
+- Title: Manage custom vocabulary books and words  
+- Actor: ExamLearner  
+
+- Goal:  
+  - The learner creates and maintains custom vocabulary books (for example from past papers or reading) and optionally links them to exam goals or study sessions.  
+
+- Precondition:  
+  - The learner can access the custom vocabulary book management screen from the goal dashboard.  
+
+- Postcondition:  
+  - Custom vocabulary books and their words are created, updated, or deleted as requested, and are available as sources for future study sessions.  
+
+- States: [ STATE_GOAL_DASHBOARD -> STATE_CUSTOM_VOCAB_BOOKS -> STATE_GOAL_DASHBOARD ]  
+
+- Operations: [ OP_MANAGE_CUSTOM_VOCAB_BOOKS ]  
+
+- ErrorCases:
+  - The learner tries to delete a custom book that is still referenced by active settings or reports.  
+  - Network or storage error prevents saving changes to custom vocabulary books or words.  
+
+---
+
+### UC-5
+
+- UC_ID: UC_VIEW_STUDY_HISTORY  
+- Title: View study history and statistics  
+- Actor: ExamLearner  
+
+- Goal:  
+  - The learner reviews study history and key statistics (for example study time, cleared words, reading sessions) over days, weeks, and months to understand long-term progress.  
+
+- Precondition:  
+  - The learner can access the study history / stats screen from the goal dashboard.  
+
+- Postcondition:  
+  - The learner can see aggregated metrics and trends, filtered by time range and (optionally) exam goal or vocabulary book.  
+
+- States: [ STATE_GOAL_DASHBOARD -> STATE_STUDY_HISTORY -> STATE_GOAL_DASHBOARD ]  
+
+- Operations: [ OP_VIEW_STUDY_HISTORY ]  
+
+- ErrorCases:
+  - No study data exists yet for the selected range (the system should handle this gracefully).  
+  - Network or storage error prevents loading study history.  
+
+---
+
+### UC-6
+
+- UC_ID: UC_CONFIGURE_APP_SETTINGS  
+- Title: Configure application and review settings  
+- Actor: ExamLearner  
+
+- Goal:  
+  - The learner configures application-level settings such as review strictness, default question direction, and monthly mistaken-only review policy so that the app behavior matches their learning style.  
+
+- Precondition:  
+  - The learner can access the settings screen from the goal dashboard.  
+
+- Postcondition:  
+  - User settings are updated and will be used by the review scheduler and UI (for example default direction EN->JA or JA->EN, strictness profile, minimum interval for mistaken-only review).  
+
+- States: [ STATE_GOAL_DASHBOARD -> STATE_SETTINGS -> STATE_GOAL_DASHBOARD ]  
+
+- Operations: [ OP_UPDATE_APP_SETTINGS ]  
+
+- ErrorCases:
+  - The learner enters invalid setting values (for example negative interval days); the system should validate and reject such inputs with clear messages.  
+  - Network or storage error prevents saving updated settings.  
