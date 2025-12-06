@@ -18,11 +18,35 @@ mermaid の flowchart で記述する (UML 状態マシン図の簡易版)。
 
 ```mermaid
 flowchart TD
-  %% ここにプロジェクト固有の状態遷移を記述する
-  %% 例:
-  %% STATE_TITLE     -->|start_button_clicked| STATE_IN_GAME
-  %% STATE_IN_GAME   -->|player_died|         STATE_RESULT
-  %% STATE_IN_GAME   -->|pause_button|        STATE_PAUSE
-  %% STATE_PAUSE     -->|resume_button|       STATE_IN_GAME
-  %% STATE_RESULT    -->|back_to_title|       STATE_TITLE
-```
+  %% Goal-based vocabulary learning main flow
+  STATE_HOME["STATE_HOME\nHome / Entry"] -->|open_goal_dashboard| STATE_GOAL_DASHBOARD["STATE_GOAL_DASHBOARD\nGoal dashboard (main home)"]
+
+  STATE_GOAL_DASHBOARD -->|start_daily_vocab_session| STATE_DAILY_VOCAB_SESSION["STATE_DAILY_VOCAB_SESSION\nDaily vocabulary session"]
+  STATE_DAILY_VOCAB_SESSION -->|finish_daily_vocab_session| STATE_GOAL_DASHBOARD
+
+  STATE_GOAL_DASHBOARD -->|start_reading_check| STATE_READING_CHECK_SESSION["STATE_READING_CHECK_SESSION\nReading comprehension check session"]
+  STATE_READING_CHECK_SESSION -->|finish_reading_check| STATE_GOAL_DASHBOARD
+
+  %% Monthly focus review session for mistaken words
+  STATE_GOAL_DASHBOARD -->|start_monthly_mistaken_only_review| STATE_REVIEW_MISTAKEN_ONLY_SESSION["STATE_REVIEW_MISTAKEN_ONLY_SESSION\nMonthly mistaken-only review session"]
+  STATE_REVIEW_MISTAKEN_ONLY_SESSION -->|finish_monthly_mistaken_only_review| STATE_GOAL_DASHBOARD
+
+  %% Additional menus reachable from goal dashboard
+  STATE_GOAL_DASHBOARD -->|open_exam_goal_management| STATE_EXAM_GOAL_MANAGEMENT["STATE_EXAM_GOAL_MANAGEMENT\nExam goal management"]
+  STATE_EXAM_GOAL_MANAGEMENT -->|back_to_goal_dashboard| STATE_GOAL_DASHBOARD
+
+  STATE_GOAL_DASHBOARD -->|open_study_history| STATE_STUDY_HISTORY["STATE_STUDY_HISTORY\nStudy history / stats"]
+  STATE_STUDY_HISTORY -->|back_to_goal_dashboard| STATE_GOAL_DASHBOARD
+
+  STATE_GOAL_DASHBOARD -->|open_custom_vocab_books| STATE_CUSTOM_VOCAB_BOOKS["STATE_CUSTOM_VOCAB_BOOKS\nCustom word book management"]
+  STATE_CUSTOM_VOCAB_BOOKS -->|back_to_goal_dashboard| STATE_GOAL_DASHBOARD
+
+  STATE_GOAL_DASHBOARD -->|open_difficult_word_list| STATE_DIFFICULT_WORD_LIST["STATE_DIFFICULT_WORD_LIST\nDifficult word list"]
+  STATE_DIFFICULT_WORD_LIST -->|back_to_goal_dashboard| STATE_GOAL_DASHBOARD
+
+  STATE_GOAL_DASHBOARD -->|open_settings| STATE_SETTINGS["STATE_SETTINGS\nSettings"]
+  STATE_SETTINGS -->|back_to_goal_dashboard| STATE_GOAL_DASHBOARD
+
+  STATE_GOAL_DASHBOARD -->|open_help| STATE_HELP["STATE_HELP\nHelp / How to use"]
+  STATE_HELP -->|back_to_goal_dashboard| STATE_GOAL_DASHBOARD
+``` 

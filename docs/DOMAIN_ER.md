@@ -23,15 +23,90 @@
 
 ```mermaid
 erDiagram
-  %% ここにプロジェクト固有のドメインエンティティと関係を記述する
-  %% 例:
-  %% USER ||--o{ SCORE : "ユーザは複数のスコアを持つ (1:N)"
-  %% USER {
-  %%   string id    PK   "storage_scope: UserPersistent / UUID"
-  %%   string name       "storage_scope: UserPersistent / 必須"
-  %% }
-  %% SCORE {
-  %%   string id     PK   "storage_scope: UserPersistent"
-  %%   string userId FK   "storage_scope: UserPersistent"
-  %%   int    value       "0以上 / storage_scope: UserPersistent"
-  %% }
+  USER ||--o{ EXAM_GOAL : "1 user can have multiple exam goals (1:N)"
+  USER {
+    string id           PK   "storage_scope: UserPersistent / UUID"
+    string displayName       "storage_scope: UserPersistent / optional"
+  }
+
+  EXAM_GOAL ||--o{ STUDY_TARGET_AGGREGATE : "Derived daily/weekly/monthly targets (1:N)"
+  EXAM_GOAL {
+    string id          PK   "storage_scope: UserPersistent / UUID"
+    string userId      FK   "storage_scope: UserPersistent"
+    string examType         "storage_scope: UserPersistent / e.g. EIKEN"
+    string examLevel        "storage_scope: UserPersistent / e.g. Grade1, Grade2"
+    date   targetDate       "storage_scope: UserPersistent"
+  }
+
+  STUDY_TARGET_AGGREGATE {
+    string id            PK   "storage_scope: UserPersistent / UUID"
+    string examGoalId    FK   "storage_scope: UserPersistent"
+    string timeUnit           "storage_scope: UserPersistent / day, week, month"
+    int    targetWords        "storage_scope: UserPersistent / >= 0"
+    int    targetMinutes      "storage_scope: UserPersistent / >= 0"
+  }
+
+  VOCABULARY_BOOK ||--o{ VOCABULARY_WORD : "A book contains many words (1:N)"
+  VOCABULARY_BOOK {
+    string id            PK   "storage_scope: GlobalPersistent / UUID"
+    string title              "storage_scope: GlobalPersistent"
+    string examLevel          "storage_scope: GlobalPersistent / linked to exam levels"
+    boolean isBuiltIn         "storage_scope: GlobalPersistent / true for provided books"
+  }
+
+  VOCABULARY_WORD ||--o{ WORD_SENSE : "A word can have multiple senses (1:N)"
+  VOCABULARY_WORD {
+    string id             PK   "storage_scope: GlobalPersistent / UUID"
+    string vocabularyBookId FK "storage_scope: GlobalPersistent"
+    string lemma               "storage_scope: GlobalPersistent / base form"
+    string partOfSpeech        "storage_scope: GlobalPersistent"
+    boolean isPolysemous       "storage_scope: GlobalPersistent / true if multiple key senses"
+  }
+
+  WORD_SENSE {
+    string id             PK   "storage_scope: GlobalPersistent / UUID"
+    string vocabularyWordId FK "storage_scope: GlobalPersistent"
+    string meaningJa          "storage_scope: GlobalPersistent"
+    string exampleSentenceEn  "storage_scope: GlobalPersistent"
+    string exampleSentenceJa  "storage_scope: GlobalPersistent"
+  }
+
+  USER ||--o{ WORD_SENSE_MASTERY : "User tracks mastery per word sense (1:N)"
+  WORD_SENSE ||--o{ WORD_SENSE_MASTERY : "One sense can have many user mastery records (1:N)"
+  WORD_SENSE_MASTERY {
+    string id             PK   "storage_scope: UserPersistent / UUID"
+    string userId         FK   "storage_scope: UserPersistent"
+    string wordSenseId    FK   "storage_scope: UserPersistent"
+    string masteryStage        "storage_scope: UserPersistent / candidate, shortContextChecked, contextConfirmed"
+    datetime lastTestedAt      "storage_scope: UserPersistent / optional"
+    datetime nextReviewAt      "storage_scope: UserPersistent / optional / scheduled by forgetting-curve algorithm"
+    int      mistakenCount     "storage_scope: UserPersistent / >= 0 / total times answered incorrectly"
+    datetime lastMistakenAt    "storage_scope: UserPersistent / optional"
+    boolean fromReadingContext "storage_scope: UserPersistent / true if confirmed via reading"
+  }
+
+  READING_PASSAGE ||--o{ READING_QUESTION : "One passage can have many questions (1:N)"
+  READING_PASSAGE {
+    string id             PK   "storage_scope: GlobalPersistent / UUID"
+    string examLevel          "storage_scope: GlobalPersistent"
+    int    estimatedSeconds   "storage_scope: GlobalPersistent / e.g. around 120 seconds"
+    string text               "storage_scope: GlobalPersistent"
+  }
+
+  READING_QUESTION {
+    string id               PK   "storage_scope: GlobalPersistent / UUID"
+    string readingPassageId FK   "storage_scope: GlobalPersistent"
+    string questionType         "storage_scope: GlobalPersistent / comprehension, vocabularyInContext etc."
+    string prompt               "storage_scope: GlobalPersistent"
+  }
+
+  USER ||--o{ READING_SESSION : "User can run many reading sessions (1:N)"
+  READING_PASSAGE ||--o{ READING_SESSION : "Each session is for one passage (1:N)"
+  READING_SESSION {
+    string id               PK   "storage_scope: UserPersistent / UUID"
+    string userId           FK   "storage_scope: UserPersistent"
+    string readingPassageId FK   "storage_scope: UserPersistent"
+    datetime startedAt          "storage_scope: UserPersistent"
+    int      allowedSeconds     "storage_scope: UserPersistent / e.g. 120"
+    boolean  forceFinished      "storage_scope: UserPersistent / true if finished by countdown"
+  }
